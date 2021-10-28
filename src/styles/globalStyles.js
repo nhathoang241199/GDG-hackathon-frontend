@@ -63,6 +63,14 @@ export const TextTitle = styled.p`
   line-height: 1.6;
 `;
 
+export const TextHref = styled.a`
+  color: var(--white);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-decoration: none;
+`;
+
 export const TextSubTitle = styled.p`
   color: var(--white);
   font-size: 14px;

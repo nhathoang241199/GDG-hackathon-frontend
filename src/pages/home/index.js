@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import { connect } from "../../redux/blockchain/blockchainActions";
-import { fetchData } from "../../redux/data/dataActions";
 import * as s from "../../styles/globalStyles";
 import i1 from "../../assets/images/Lucas.png";
 
@@ -99,113 +97,71 @@ export const StyledImg = styled.img`
 function Home() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
-  const getData = () => {
-    if (blockchain.account !== "" && blockchain.smartContract !== null) {
-      dispatch(fetchData(blockchain.account));
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, [blockchain.account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <s.Screen style={{ backgroundColor: "var(--black)" }}>
-      <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
-        <s.Container
-          flex
-          style={{ flexDirection: "row", justifyContent: "space-around" }}
-        >
-          <s.TextTitle
-            style={{ textAlign: "center", fontSize: 48, fontWeight: "bold" }}
-          >
-            # AWBC
-          </s.TextTitle>
-          <StyledButton
-            style={{ width: 300 }}
-            onClick={(e) => {
-              e.preventDefault();
-              dispatch(connect());
-              getData();
-            }}
-          >
-            {blockchain.account
-              ? `${blockchain.account.substring(
-                  0,
-                  6
-                )}...${blockchain.account.substring(
-                  blockchain.account.length - 4
-                )}`
-              : "CONNECT WALLET"}
-          </StyledButton>
+    <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
+      <s.SpacerMedium />
+      <ResponsiveWrapper flex={1} style={{ padding: 24 }}>
+        <s.Container flex={1} jc={"center"} ai={"center"}>
+          <StyledImg alt={"example"} src={i1} />
         </s.Container>
         <s.SpacerMedium />
-        <ResponsiveWrapper flex={1} style={{ padding: 24 }}>
-          <s.Container flex={1} jc={"center"} ai={"center"}>
-            <StyledImg alt={"example"} src={i1} />
-          </s.Container>
-          <s.SpacerMedium />
-          <s.Container
-            flex={1}
-            jc={"center"}
-            ai={"center"}
-            style={{ backgroundColor: "#383838", padding: 24 }}
+        <s.Container
+          flex={1}
+          jc={"center"}
+          ai={"center"}
+          style={{ backgroundColor: "#383838", padding: 24 }}
+        >
+          <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
+            Deposit to earn money
+          </s.TextTitle>
+          <s.SpacerXSmall />
+          <s.TextDescription
+            style={{ textAlign: "center", alignSelf: "start" }}
           >
-            <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
-              Deposit to earn money
-            </s.TextTitle>
-            <s.SpacerXSmall />
-            <s.TextDescription
-              style={{ textAlign: "center", alignSelf: "start" }}
-            >
-              Total Deposit: 200.5 ETH
-            </s.TextDescription>
-            <s.SpacerSmall />
-            <s.TextDescription
-              style={{ textAlign: "center", alignSelf: "start" }}
-            >
-              Total Reward: 9.7 ETH
-            </s.TextDescription>
-            <s.SpacerMedium />
-            <s.Container ai={"center"} jc={"center"} fd={"row"}>
-              <StyledButton onClick={(e) => {}}>Deposit</StyledButton>
-              <StyledButton style={{ marginLeft: 10 }} onClick={(e) => {}}>
-                Withdraw
-              </StyledButton>
-            </s.Container>
-            <s.Container
-              ai={"center"}
-              jc={"center"}
-              fd={"row"}
-              style={{ marginTop: 20 }}
-            >
-              <StyledA
-                href="/game"
-                style={{ width: "99%" }}
-                onClick={(e) => {}}
-              >
-                Play now!
-              </StyledA>
-            </s.Container>
-          </s.Container>
-        </ResponsiveWrapper>
-        <s.SpacerSmall />
-        <s.Container jc={"center"} ai={"center"} style={{ width: "70%" }}>
-          <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
-            Private Chain: also known as Off-Chain to distinguish it from
-            On-Chain (Public Chain), such as off-line and on-line. Instead of
-            being in the cyberspace of millions of computers, Private Chain is a
-            blockchain system that resides inside your computer.
+            Total Deposit: 200.5 ETH
           </s.TextDescription>
           <s.SpacerSmall />
-          <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
-            Users only spend 2 transactions when depositing and withdrawing
-            money from on-chain to off-chain All other transactions in the game
-            are processed off-chain and do not cost gas
+          <s.TextDescription
+            style={{ textAlign: "center", alignSelf: "start" }}
+          >
+            Total Reward: 9.7 ETH
           </s.TextDescription>
+          <s.SpacerMedium />
+          <s.Container ai={"center"} jc={"center"} fd={"row"}>
+            <StyledButton onClick={(e) => {}}>Deposit</StyledButton>
+            <StyledButton style={{ marginLeft: 10 }} onClick={(e) => {}}>
+              Withdraw
+            </StyledButton>
+          </s.Container>
+          <s.Container
+            ai={"center"}
+            jc={"center"}
+            fd={"row"}
+            style={{ marginTop: 20 }}
+          >
+            <StyledA href="/game" style={{ width: "99%" }} onClick={(e) => {}}>
+              Play now!
+            </StyledA>
+          </s.Container>
         </s.Container>
+      </ResponsiveWrapper>
+      <s.SpacerSmall />
+      <s.Container jc={"center"} ai={"center"} style={{ width: "70%" }}>
+        <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
+          Private Chain: also known as Off-Chain to distinguish it from On-Chain
+          (Public Chain), such as off-line and on-line. Instead of being in the
+          cyberspace of millions of computers, Private Chain is a blockchain
+          system that resides inside your computer.
+        </s.TextDescription>
+        <s.SpacerSmall />
+        <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
+          Users only spend 2 transactions when depositing and withdrawing money
+          from on-chain to off-chain All other transactions in the game are
+          processed off-chain and do not cost gas
+        </s.TextDescription>
       </s.Container>
-    </s.Screen>
+    </s.Container>
   );
 }
 
