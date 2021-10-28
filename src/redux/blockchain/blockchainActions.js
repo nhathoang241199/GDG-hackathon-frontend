@@ -48,11 +48,8 @@ export const connect = () => {
           method: "net_version",
         });
         // const NetworkData = await SmartContract.networks[networkId];
-        if (networkId == 4) {
-          const SmartContractObj = new Web3EthContract(
-            SmartContract,
-            ""
-          );
+        if (networkId === 4) {
+          const SmartContractObj = new Web3EthContract(SmartContract, "");
           dispatch(
             connectSuccess({
               account: accounts[0],
