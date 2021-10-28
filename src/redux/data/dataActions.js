@@ -29,25 +29,10 @@ export const fetchData = (account) => {
         .getState()
         .blockchain.smartContract.methods.name()
         .call();
-      let totalSupply = await store
-        .getState()
-        .blockchain.smartContract.methods.totalSupply()
-        .call();
-      let cost = await store
-        .getState()
-        .blockchain.smartContract.methods.cost()
-        .call();
-      let maxSupply = await store
-        .getState()
-        .blockchain.smartContract.methods.maxSupply()
-        .call();
 
       dispatch(
         fetchDataSuccess({
           name,
-          totalSupply,
-          cost,
-          maxSupply
         })
       );
     } catch (err) {

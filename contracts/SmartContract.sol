@@ -1,31 +1,33 @@
-// SPDX-License-Identifier: GPL-3.0
-
-// Created by HashLips
-// The Nerdy Coder Clones
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NerdyCoderClones is ERC721Enumerable, Ownable {
+contract SmartContract is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
   string public baseURI;
   string public baseExtension = ".json";
-  uint256 public cost = 100 ether;
-  uint256 public maxSupply = 1000;
-  uint256 public maxMintAmount = 20;
+  string public notRevealURI;
+  uint256 public cost = 0.01 ether;
+  uint256 public maxSupply = 20;
+  uint256 public maxMintAmount = 3;
   bool public paused = false;
+  bool public revealed = false;
+
   mapping(address => bool) public whitelisted;
 
   constructor(
     string memory _name,
     string memory _symbol,
-    string memory _initBaseURI
+    string memory _initBaseURI,
+    string memory _notRevealURI
   ) ERC721(_name, _symbol) {
+     
     setBaseURI(_initBaseURI);
-    mint(msg.sender, 20);
+    setNotRevealURI(_notRevealURI);
   }
 
   // internal
@@ -84,12 +86,21 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
   }
 
   //only owner
+  
+  function setRevealed() public onlyOwner{
+    revealed = true;
+  }
+  
   function setCost(uint256 _newCost) public onlyOwner() {
     cost = _newCost;
   }
 
   function setmaxMintAmount(uint256 _newmaxMintAmount) public onlyOwner() {
     maxMintAmount = _newmaxMintAmount;
+  }
+  
+  function setNotRevealURI(string memory _newNotRevealURI) public onlyOwner {
+    notRevealURI = _newNotRevealURI;
   }
 
   function setBaseURI(string memory _newBaseURI) public onlyOwner {

@@ -4,25 +4,37 @@ import { connect } from "./redux/blockchain/blockchainActions";
 import { fetchData } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
-import i1 from "./assets/images/1.png";
+import i1 from "./assets/images/Lucas.png";
 
 export const StyledButton = styled.button`
-  padding: 10px;
   border-radius: 50px;
   border: none;
-  background-color: #ffffff;
-  padding: 10px;
+  background-color: #ffc300;
+  padding: 24px 10px;
   font-weight: bold;
+  font-size: 30;
   color: #000000;
-  width: 100px;
+  width: 49%;
   cursor: pointer;
-  box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
-  -webkit-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
-  -moz-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
+  box-shadow: 5px 10px 0px -4px rgba(250, 250, 250, 0.3);
+  -webkit-box-shadow: 5px 10px 0px -4px rgba(250, 250, 250, 0.3);
+  -moz-box-shadow: 5px 10px 0px -4px rgba(250, 250, 250, 0.3);
   :active {
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
+  }
+  :hover{
+    background-color: rgba(250, 250, 250, 0.3);
+    color: #ffffff;
+    ox-shadow: 5px 10px 0px -4px #ffffffb3;
+    -webkit-box-shadow: 5px 10px 0px -4px #ffffffb3;
+    -moz-box-shadow: 5px 10px 0px -4px #ffffffb3;
+  }
+  @media (max-width: 767px) {
+    width: 90% !important;
+    margin-top: 20px !important;
+    margin-left: 0px  !important;
   }
 `;
 
@@ -52,38 +64,6 @@ export const StyledImg = styled.img`
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
-  const data = useSelector((state) => state.data);
-  const [feedback, setFeedback] = useState("Maybe it's your lucky day.");
-  const [claimingNft, setClaimingNft] = useState(false);
-
-  const claimNFTs = (_amount) => {
-    if (_amount <= 0) {
-      return;
-    }
-    setFeedback("Minting your Alpha Astronaut...");
-    setClaimingNft(true);
-    blockchain.smartContract.methods
-      .mint(blockchain.account, _amount)
-      .send({
-        gasLimit: "285000",
-        to: "0x3Bb33a95Db60555F3EC81209095f61008b8C6Ff8",
-        from: blockchain.account,
-        value: blockchain.web3.utils.toWei((0.01 * _amount).toString(), "ether"),
-      })
-      .once("error", (err) => {
-        console.log(err);
-        setFeedback("Sorry, something went wrong please try again later.");
-        setClaimingNft(false);
-      })
-      .then((receipt) => {
-        setFeedback(
-          "WOW, you now own a Alpha Astronaut. go visit testnets.opensea.io to view it."
-        );
-        setClaimingNft(false);
-        dispatch(fetchData(blockchain.account));
-      });
-  };
-
   const getData = () => {
     if (blockchain.account !== "" && blockchain.smartContract !== null) {
       dispatch(fetchData(blockchain.account));
@@ -97,25 +77,29 @@ function App() {
   return (
     <s.Screen style={{ backgroundColor: "var(--black)" }}>
       <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
+        <s.Container flex style={{ flexDirection: 'row', justifyContent : 'space-around'}}>
         <s.TextTitle
-          style={{ textAlign: "center", fontSize: 28, fontWeight: "bold" }}
+          style={{ textAlign: "center", fontSize: 48, fontWeight: "bold" }}
         >
-          Mint a Alpha Astronaut
+          # AWBC
         </s.TextTitle>
+        <StyledButton
+                      style={{width: 300}}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        dispatch(connect());
+                        getData();
+                      }}
+                    >
+                    {blockchain.account? `${blockchain.account.substring(0, 6)}...${blockchain.account.substring(
+              blockchain.account.length - 4
+            )}` : 'CONNECT WALLET'}
+        </StyledButton>
+          </s.Container>
         <s.SpacerMedium />
         <ResponsiveWrapper flex={1} style={{ padding: 24 }}>
           <s.Container flex={1} jc={"center"} ai={"center"}>
             <StyledImg alt={"example"} src={i1} />
-            <s.SpacerMedium />
-            <s.TextTitle
-              style={{ textAlign: "center", fontSize: 35, fontWeight: "bold" }}
-            >
-            {data.totalSupply ?
-              <>
-              {data.totalSupply}/{data.maxSupply}
-              </> : ''
-            }
-            </s.TextTitle>
           </s.Container>
           <s.SpacerMedium />
           <s.Container
@@ -124,93 +108,53 @@ function App() {
             ai={"center"}
             style={{ backgroundColor: "#383838", padding: 24 }}
           >
-            {Number(data.totalSupply) == Number(data.maxSupply) ? (
-              <>
-                <s.TextTitle style={{ textAlign: "center" }}>
-                  The sale has ended.
-                </s.TextTitle>
-                <s.SpacerSmall />
-                <s.TextDescription style={{ textAlign: "center" }}>
-                  You can still find Alpha Astronauts on{" "}
-                  <a
-                    target={"_blank"}
-                    href={"https://opensea.io/collection/nerdy-coder-clones"}
-                  >
-                    Opensea.io
-                  </a>
-                </s.TextDescription>
-              </>
-            ) : (
-              <>
-                <s.TextTitle style={{ textAlign: "center" }}>
-                {data.totalSupply ?
-                  <>
-                  1 ALA costs {data.cost/10**18} ETH.
-                  </> : "Let's connect and buy a Alpha Astronaut"
-                }
+                <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
+                  Deposit to earn money
                 </s.TextTitle>
                 <s.SpacerXSmall />
-                <s.TextDescription style={{ textAlign: "center" }}>
-                  Excluding gas fee.
+                <s.TextDescription style={{ textAlign: "center", alignSelf: 'start' }}>
+                  Total Deposit: 200.5 ETH
                 </s.TextDescription>
                 <s.SpacerSmall />
-                <s.TextDescription style={{ textAlign: "center" }}>
-                  {feedback}
+                <s.TextDescription style={{ textAlign: "center",  alignSelf: 'start' }}>
+                  Total Reward: 9.7 ETH
                 </s.TextDescription>
                 <s.SpacerMedium />
-                {blockchain.account === "" ||
-                blockchain.smartContract === null ? (
-                  <s.Container ai={"center"} jc={"center"}>
-                    <s.TextDescription style={{ textAlign: "center" }}>
-                      Connect to the Rinkeby network
-                    </s.TextDescription>
-                    <s.SpacerSmall />
-                    <StyledButton
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatch(connect());
-                        getData();
-                      }}
-                    >
-                      CONNECT
-                    </StyledButton>
-                    {blockchain.errorMsg !== "" ? (
-                      <>
-                        <s.SpacerSmall />
-                        <s.TextDescription style={{ textAlign: "center" }}>
-                          {blockchain.errorMsg}
-                        </s.TextDescription>
-                      </>
-                    ) : null}
-                  </s.Container>
-                ) : (
                   <s.Container ai={"center"} jc={"center"} fd={"row"}>
                     <StyledButton
-                      disabled={claimingNft ? 1 : 0}
                       onClick={(e) => {
-                        e.preventDefault();
-                        claimNFTs(1);
-                        getData();
                       }}
                     >
-                      {claimingNft ? "BUSY" : "BUY 1"}
+                      Deposit
+                    </StyledButton>
+                    <StyledButton
+                      style={{marginLeft: 10}}
+                      onClick={(e) => {
+                      }}
+                    >
+                      Withdraw
+                    </StyledButton>
+            </s.Container>
+            <s.Container ai={"center"} jc={"center"} fd={"row"} style={{marginTop: 20}}>
+                    <StyledButton
+                      style={{width: '99%'}}
+                      onClick={(e) => {
+                      }}
+                    >
+                      Play now!
                     </StyledButton>
                   </s.Container>
-                )}
-              </>
-            )}
           </s.Container>
         </ResponsiveWrapper>
         <s.SpacerSmall />
         <s.Container jc={"center"} ai={"center"} style={{ width: "70%" }}>
           <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
-            Please make sure you are connected to the right network (Rinkeby testnet) and the correct address. Please note: Once you make the
-            purchase, you cannot undo this action.
+          Private Chain: also known as Off-Chain to distinguish it from On-Chain (Public Chain), such as off-line and on-line. Instead of being in the cyberspace of millions of computers, Private Chain is a blockchain system that resides inside your computer.
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription style={{ textAlign: "center", fontSize: 9 }}>
-            We have set the gas limit to 285000 for the contract to successfully
-            mint your NFT. We recommend that you don't change the gas limit.
+          Users only spend 2 transactions when depositing and withdrawing money from on-chain to off-chain
+All other transactions in the game are processed off-chain and do not cost gas
           </s.TextDescription>
         </s.Container>
       </s.Container>

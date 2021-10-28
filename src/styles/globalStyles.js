@@ -48,11 +48,17 @@ export const Container = styled.div`
   background-image: ${({ image }) => (image ? `url(${image})` : "none")};
   background-size: cover;
   background-position: center;
+  @media (max-width: 767px) {
+    flex-direction: column !important;
+    align-items: center;
+    padding: 0 !important;
+    margin-top: 0 !important;
+  }
 `;
 
 export const TextTitle = styled.p`
   color: var(--white);
-  font-size: 18px;
+  font-size: 28px;
   font-weight: 500;
   line-height: 1.6;
 `;
@@ -65,8 +71,12 @@ export const TextSubTitle = styled.p`
 
 export const TextDescription = styled.p`
   color: var(--white);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
+  @media (max-width: 767px) {
+    align-self: center;
+    padding: 2px !important;
+  }
 `;
 
 export const StyledClickable = styled.div`
