@@ -100,8 +100,7 @@ function Home() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
-  console.log('data: ', data);
-  const sig = '0xaf8ff3425a9d939fd2fa3b68726f9eabec8dabda7b5643f8db12be92bc6cc2f0719810cb0ca5d85971b1fd6c651647c16dd5d825959bc45fe0ecb860c28781721c';
+  let sig = '';
   
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -142,7 +141,7 @@ function Home() {
   }
 
   const withdraw = async () => {
-    const response = await fetch('https://learned-vehicle-330115.df.r.appspot.com/message/sign', {
+    const call = await fetch('https://learned-vehicle-330115.df.r.appspot.com/message/sign', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -150,18 +149,28 @@ function Home() {
       },
       body: JSON.stringify({recipientAddress: blockchain.account, amount: data.balanceOffChain, nonce: blockchain.nonce})
     });
+    const response = await call.json();
     handleProcessing('Withdraw ...', 'info');
     blockchain.BankSC.methods
-    .withdraw(blockchain.web3.utils.toWei((data.balanceOffChain).toString(), "ether"), blockchain.nonce, sig)
+    .withdraw(data.balanceOffChain.toString(), blockchain.nonce, response.data.message)
     .send({
       from: blockchain.account,
     }).once('error', (err)=>{
       handleCloseNotify();
       handleNotify('Withdraw fail!', 'error');
       console.log(err);
-    }).then(() => {
+    }).then(async () => {
+      await fetch(`https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain.account}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({balance: '0', point: '0'})
+      });
       handleCloseNotify();
       handleNotify('Withdraw successful!', 'success');
+      dispatch(fetchData(blockchain.account));
       console.log('deposit successful!');
     });
   }
