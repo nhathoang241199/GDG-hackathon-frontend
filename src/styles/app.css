@@ -9,3 +9,23 @@
 .ion-phaser {
   border: 5px solid var(--yellow);
 }
+
+.game-bg {
+  width: 1000px;
+  height: 496px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-img-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
