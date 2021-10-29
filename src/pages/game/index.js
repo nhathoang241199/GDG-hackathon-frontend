@@ -162,19 +162,18 @@ function Game() {
         .toString(),
       point: score + point,
     };
-    console.log("data: ", data);
 
-    // await fetch(
-    //   `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
-    //   {
-    //     method: "PUT",
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    //   }
-    // );
+    await fetch(
+      `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
   }
 
   function createWater(thus) {
