@@ -6,6 +6,7 @@ import { useSnackbar } from "notistack";
 import BigNumber from "big-number";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
+import { fetchData } from "../../redux/data/dataActions";
 
 function Game() {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ function Game() {
   let platform;
   let player;
   let cursors;
-  let score = 0;
+  let score = point;
   let scoreText;
   let coin;
   let anims;
@@ -60,6 +61,7 @@ function Game() {
           body: JSON.stringify(data),
         }
       );
+      // dispatch(fetchData(blockchain?.account));
     }
   }
 
@@ -174,6 +176,7 @@ function Game() {
         body: JSON.stringify(data),
       }
     );
+    // dispatch(fetchData(blockchain?.account));
   }
 
   function createWater(thus) {
@@ -276,7 +279,7 @@ function Game() {
         createSignIn(this);
 
         // Score text
-        scoreText = this.add.text(850, 20, "SCORE: 0", {
+        scoreText = this.add.text(800, 20, "SCORE: 0", {
           fontSize: "24px",
           fill: "#fff",
         });
