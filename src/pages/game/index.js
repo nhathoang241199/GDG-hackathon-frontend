@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Phaser from "phaser";
 import { IonPhaser } from "@ion-phaser/react";
+import Web3EthContract from "web3-eth-contract";
+import Web3 from "web3";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
 
@@ -20,13 +22,9 @@ function Game() {
   let anims;
   let water;
   let gameOverImage;
-  let tryAgainImage;
   let yesImage;
   let noImage;
   let clearImage;
-  let scoreTextOver;
-  let logoGameText;
-  let signInGameButton;
 
   function collectCoin(player, coin) {
     coin.disableBody(true, true);
@@ -270,35 +268,91 @@ function Game() {
     if (blockchain?.account) setInitialize(true);
   }, [blockchain?.account]);
 
-  const onConnectWallet = () => {
+  const { ethereum } = window;
+  Web3EthContract.setProvider(ethereum);
+  let web3 = new Web3(ethereum);
+
+  const signatureRecover = async (signature, dataThatWasSigned) => {
+    await web3.eth.personal.ecRecover(
+      dataThatWasSigned,
+      signature,
+      (error, address) => {
+        console.log("error: ", error);
+        console.log("address: ", address);
+      }
+    );
+  };
+
+  const handleSignature = async () => {
+    // dispatch(connect());
+    const nonce = Math.floor(Math.random() * 1000000);
+    await web3.eth.personal.sign(
+      web3.utils.fromUtf8(nonce),
+      blockchain?.account,
+      "",
+      (err, signature) => {
+        if (signature) {
+          signatureRecover(signature, web3.utils.fromUtf8(nonce));
+        }
+      }
+    );
+  };
+
+  const onConnectWallet = async () => {
     dispatch(connect());
   };
 
   return (
     <div className="game-container">
       <div className="ion-phaser">
-        {!blockchain?.account ? (
-          <div className="game-bg">
-            <img
-              src="assets/BG/game-bg.png"
-              alt="sign in"
-              className="game-img-bg"
-            />
-            <img
-              src="assets/BG/logo-game.png"
-              alt="logo game"
-              style={{ position: "relative" }}
-            />
-            <img
-              src="assets/BG/sign-in.png"
-              alt="sign in"
-              style={{ position: "relative", marginTop: 50 }}
-              onClick={onConnectWallet}
-            />
-          </div>
-        ) : (
+        {/* {!blockchain?.account ? ( */}
+        <div className="game-bg">
+          <img
+            src="assets/BG/game-bg.png"
+            alt="sign in"
+            className="game-img-bg"
+          />
+          {!blockchain?.account ? (
+            <>
+              <img
+                src="assets/BG/logo-game.png"
+                alt="logo game"
+                style={{ position: "relative" }}
+              />
+              <img
+                src="assets/BG/connect-wallet.png"
+                alt="sign in"
+                style={{
+                  position: "relative",
+                  marginTop: 50,
+                  cursor: "pointer",
+                }}
+                onClick={onConnectWallet}
+              />
+            </>
+          ) : (
+            <>
+              <img
+                src="assets/BG/action-require.png"
+                alt="logo game"
+                style={{ position: "relative" }}
+              />
+              <img
+                src="assets/BG/sign-in.png"
+                alt="sign in"
+                style={{
+                  position: "relative",
+                  marginTop: 50,
+                  cursor: "pointer",
+                }}
+                onClick={handleSignature}
+              />
+            </>
+          )}
+        </div>
+        {/* ) : (
           <IonPhaser ref={gameRef} game={game} initialize={initialize} />
-        )}
+        )} */}
       </div>
     </div>
   );
