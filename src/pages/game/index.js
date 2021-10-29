@@ -333,7 +333,7 @@ function Game() {
           ) : (
             <>
               <img
-                src="assets/BG/action-require.png"
+                src="assets/BG/action-required.png"
                 alt="logo game"
                 style={{ position: "relative" }}
               />
