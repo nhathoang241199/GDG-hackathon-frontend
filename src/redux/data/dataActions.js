@@ -45,9 +45,11 @@ export const fetchData = (account) => {
           },
           body: JSON.stringify({address: store.getState().blockchain.account, balance: '0'})
         });
-      }    
-      console.log('response: ', response);    
-      
+      }
+
+      response =  await (await fetch(api + '/' + store.getState().blockchain.account)).json();
+      const balanceOffChain =  response.data.balance;
+      const point = response.data.point;
       // const api = `https://learned-vehicle-330115.df.r.appspot.com/user/${store.getState().blockchain.account}`;
       // fetch(api).then(response => response.json())
       // .then(data => console.log(data))
@@ -57,7 +59,9 @@ export const fetchData = (account) => {
       dispatch(
         fetchDataSuccess({
           AWBCBalance,
-          totalDeposit
+          totalDeposit,
+          balanceOffChain,
+          point
         })
       );
     } catch (err) {

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as s from "../../styles/globalStyles";
 import i1 from "../../assets/images/Lucas.png";
 import { useSnackbar } from 'notistack';
+import { fetchData } from "../../redux/data/dataActions";
 
 export const StyledButton = styled.button`
   border-radius: 50px;
@@ -99,6 +100,7 @@ function Home() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
+  console.log('data: ', data);
   const sig = '0xaf8ff3425a9d939fd2fa3b68726f9eabec8dabda7b5643f8db12be92bc6cc2f0719810cb0ca5d85971b1fd6c651647c16dd5d825959bc45fe0ecb860c28781721c';
   
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -120,25 +122,37 @@ function Home() {
   }
 
   const deposit = () => {
+    dispatch(fetchData(blockchain.account));
     handleProcessing('Deposit ...', 'info');
     blockchain.BankSC.methods
-    .deposit(blockchain.web3.utils.toWei((1).toString(), "ether"))
+    .deposit(data.AWBCBalance)
     .send({
       from: blockchain.account,
     }).once('error', (err)=>{
       handleCloseNotify();
       handleNotify('Deposit fail!', 'error');
       console.log(err);
-    }).then(() => {
+    }).then(async () => {
       handleCloseNotify();
       handleNotify('Deposit successful!', 'success');
+      dispatch(fetchData(blockchain.account));
     });
+
+    
   }
 
-  const withdraw = () => {
+  const withdraw = async () => {
+    const response = await fetch('https://learned-vehicle-330115.df.r.appspot.com/message/sign', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({recipientAddress: blockchain.account, amount: data.balanceOffChain, nonce: blockchain.nonce})
+    });
     handleProcessing('Withdraw ...', 'info');
     blockchain.BankSC.methods
-    .withdraw(blockchain.web3.utils.toWei((30).toString(), "ether"), blockchain.nonce, sig)
+    .withdraw(blockchain.web3.utils.toWei((data.balanceOffChain).toString(), "ether"), blockchain.nonce, sig)
     .send({
       from: blockchain.account,
     }).once('error', (err)=>{
@@ -175,19 +189,19 @@ function Home() {
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            AWBC Balance: {data.AWBCBalance ? data.AWBCBalance : 0} ETH
+            AWBC Balance: {data.balanceOffChain ? data.balanceOffChain/10**18 : 0} AWBC
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            Total Deposit: {data.totalDeposit ? data.totalDeposit : 0} ETH
+            Total Deposit: {data.totalDeposit ? data.totalDeposit/(10**18) : 0} AWBC
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            Total Reward: 0 ETH
+            Total Reward: {data.point ? data.point : 0} AWBC
           </s.TextDescription>
           <s.SpacerMedium />
           <s.Container ai={"center"} jc={"center"} fd={"row"}>

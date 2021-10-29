@@ -20,6 +20,8 @@ const dataReducer = (state = initialState, action) => {
         loading: false,
         AWBCBalance: action.payload.AWBCBalance,
         totalDeposit: action.payload.totalDeposit,
+        balanceOffChain: action.payload.balanceOffChain,
+        point: action.payload.point,
         error: false,
         errorMsg: "",
       };
