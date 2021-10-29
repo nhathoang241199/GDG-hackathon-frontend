@@ -10,6 +10,7 @@
   border: 5px solid var(--yellow);
   width: 1000px;
   height: 506px;
+  overflow: hidden;
 }
 
 .game-bg {
