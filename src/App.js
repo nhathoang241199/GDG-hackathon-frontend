@@ -28,8 +28,8 @@ function App() {
               maxSnack={3}
           >
             <Route exact path="/" component={HomePage} />
-          </SnackbarProvider>
             <Route exact path="/game" component={GamePage} />
+          </SnackbarProvider>
           </Switch>
         </s.Screen>
       </BrowserRouter>

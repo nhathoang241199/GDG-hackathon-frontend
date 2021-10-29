@@ -197,6 +197,16 @@ function Home() {
             <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
               Let's connect your wallet
           </s.TextTitle>
+          <s.Container
+            ai={"center"}
+            jc={"center"}
+            fd={"row"}
+            style={{ marginTop: 20 }}
+          >
+            <StyledA href="/game" style={{ width: "99%" }} onClick={(e) => {}}>
+              Play now!
+            </StyledA>
+          </s.Container>
             </>
           )
         }
