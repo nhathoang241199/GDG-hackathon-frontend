@@ -6,15 +6,22 @@ import { useSnackbar } from "notistack";
 import BigNumber from "big-number";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
-import { fetchData } from "../../redux/data/dataActions";
+import { fetchDataSuccess } from "../../redux/data/dataActions";
 
 function Game() {
   const dispatch = useDispatch();
   const gameRef = useRef(null);
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
-  const { point = 0, balanceOffChain = "0" } = data || {};
+  console.log("data: ", data);
+  const {
+    point = 0,
+    balanceOffChain = "0",
+    AWBCBalance = "",
+    totalDeposit = "",
+  } = data || {};
   const [initialize, setInitialize] = useState(true);
+  const [count, setCount] = useState(0);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -38,19 +45,12 @@ function Game() {
   let yesImage;
   let noImage;
   let clearImage;
+  let originScore = score;
+  let balanceChain = "0";
 
-  async function collectCoin(player, coin) {
-    coin.disableBody(true, true);
-    score += 10;
-    if (score === 100) {
-      const data = {
-        balance: new BigNumber(score * 10 ** 18)
-          .plus(new BigNumber(balanceOffChain))
-          .toString(),
-        point: score + point,
-      };
-
-      await fetch(
+  async function updateDataUser(body) {
+    try {
+      const res = await fetch(
         `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
         {
           method: "PUT",
@@ -58,10 +58,39 @@ function Game() {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(body),
         }
       );
-      // dispatch(fetchData(blockchain?.account));
+      const response = await res.json();
+      const { data = {} } = response || {};
+
+      dispatch(
+        fetchDataSuccess({
+          AWBCBalance,
+          totalDeposit,
+          balanceOffChain: data?.balance,
+          point: data?.point,
+        })
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function collectCoin(player, coin) {
+    coin.disableBody(true, true);
+    score += 10;
+    if (score === originScore + 100) {
+      const body = {
+        balance: new BigNumber(score * 10 ** 18)
+          .plus(new BigNumber(balanceOffChain))
+          .toString(),
+        point: score,
+      };
+      balanceChain = new BigNumber(score * 10 ** 18)
+        .plus(new BigNumber(balanceOffChain))
+        .toString();
+      updateDataUser(body);
     }
   }
 
@@ -147,7 +176,7 @@ function Game() {
     clearImage.visible = true;
     yesImage.visible = true;
     noImage.visible = true;
-    // scoreTextOver.visible = true;
+    originScore += 100;
   }
 
   async function setGameOver(player, water) {
@@ -156,27 +185,20 @@ function Game() {
     gameOverImage.visible = true;
     yesImage.visible = true;
     noImage.visible = true;
-    // scoreTextOver.visible = true;
+    score = originScore >= 10 ? originScore - 10 : 0;
+    originScore = originScore >= 10 ? originScore - 10 : 0;
 
     const data = {
-      balance: new BigNumber(balanceOffChain)
-        .minus(new BigNumber(10 * 10 ** 18))
-        .toString(),
-      point: score + point,
+      balance:
+        new BigNumber(balanceChain) >= new BigNumber(10 * 10 ** 18)
+          ? new BigNumber(balanceChain)
+              .minus(new BigNumber(10 * 10 ** 18))
+              .toString()
+          : "0",
+      point: originScore >= 10 ? originScore : 0,
     };
 
-    await fetch(
-      `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
-      {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    // dispatch(fetchData(blockchain?.account));
+    updateDataUser(data);
   }
 
   function createWater(thus) {
@@ -190,15 +212,22 @@ function Game() {
     clearImage.visible = false;
     yesImage.visible = false;
     noImage.visible = false;
-    // scoreTextOver.visible = false;
   }
 
   function restartGame(thus) {
     thus.registry.destroy();
     thus.events.off();
     thus.scene.restart();
-    score = 0;
-    hideGameOver();
+    gameOverImage.visible = false;
+    clearImage.visible = false;
+    yesImage.visible = false;
+    noImage.visible = false;
+  }
+
+  function handleNoPress() {
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   }
 
   function createGameOver(thus) {
@@ -206,25 +235,15 @@ function Game() {
     clearImage = thus.add.image(500, 180, "youWin");
     yesImage = thus.add.image(420, 360, "yes");
     noImage = thus.add.image(590, 360, "no");
-    // scoreTextOver = thus.add.text(420, 200, "SCORE: 0", {
-    //   fontSize: "32px",
-    //   fill: "#fff",
-    // });
     yesImage.setInteractive();
     yesImage.on("pointerdown", () => restartGame(thus));
     noImage.setInteractive();
-    noImage.on("pointerdown", () => hideGameOver());
+    noImage.on("pointerdown", () => handleNoPress());
 
     gameOverImage.visible = false;
     clearImage.visible = false;
     yesImage.visible = false;
     noImage.visible = false;
-    // scoreTextOver.visible = false;
-  }
-
-  function createSignIn(thus) {
-    // logoGameText = thus.add.image(500, 200, "logo");
-    // signInGameButton = thus.add.image(500, 300, "signIn");
   }
 
   const game = {
@@ -276,7 +295,6 @@ function Game() {
         createWater(this);
         createCoins(this);
         createGameOver(this);
-        createSignIn(this);
 
         // Score text
         scoreText = this.add.text(800, 20, "SCORE: 0", {
@@ -302,9 +320,8 @@ function Game() {
         this.physics.add.collider(player, coin, setGameOver, null, this);
 
         scoreText.setText("SCORE: " + score);
-        // scoreTextOver.setText("SCORE: " + score);
 
-        if (score === 100) {
+        if (score === originScore + 100) {
           setGamerWinner(this);
         }
       },
@@ -312,13 +329,14 @@ function Game() {
   };
 
   useEffect(() => {
-    if (blockchain?.account) {
+    if (blockchain?.account && count === 0) {
       if (gameRef.current) {
         gameRef.current.destroy();
       }
       setInitialize(true);
+      setCount(1);
     }
-  }, [blockchain?.account]);
+  }, [blockchain?.account, count]);
 
   const onConnectWallet = async () => {
     dispatch(connect());
