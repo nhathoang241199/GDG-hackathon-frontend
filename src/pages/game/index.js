@@ -2,32 +2,34 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Phaser from "phaser";
 import { IonPhaser } from "@ion-phaser/react";
-import Web3EthContract from "web3-eth-contract";
-import Web3 from "web3";
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from "notistack";
+import BigNumber from "big-number";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
+import { fetchData } from "../../redux/data/dataActions";
 
 function Game() {
   const dispatch = useDispatch();
   const gameRef = useRef(null);
   const blockchain = useSelector((state) => state.blockchain);
+  const data = useSelector((state) => state.data);
+  const { point = 0, balanceOffChain = "0" } = data || {};
   const [initialize, setInitialize] = useState(true);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleNotify = (mess, type) => {
-    enqueueSnackbar(mess, {variant: type});
+    enqueueSnackbar(mess, { variant: type });
   };
 
-  if(blockchain.errorMsg){
-    handleNotify(blockchain.errorMsg, 'error');
+  if (blockchain.errorMsg) {
+    handleNotify(blockchain.errorMsg, "error");
   }
 
   let platform;
   let player;
   let cursors;
-  let score = 0;
+  let score = point;
   let scoreText;
   let coin;
   let anims;
@@ -37,9 +39,30 @@ function Game() {
   let noImage;
   let clearImage;
 
-  function collectCoin(player, coin) {
+  async function collectCoin(player, coin) {
     coin.disableBody(true, true);
     score += 10;
+    if (score === 100) {
+      const data = {
+        balance: new BigNumber(score * 10 ** 18)
+          .plus(new BigNumber(balanceOffChain))
+          .toString(),
+        point: score + point,
+      };
+
+      await fetch(
+        `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      // dispatch(fetchData(blockchain?.account));
+    }
   }
 
   function createCoin(coin) {
@@ -127,13 +150,33 @@ function Game() {
     // scoreTextOver.visible = true;
   }
 
-  function setGameOver(player, water) {
+  async function setGameOver(player, water) {
     this.physics.pause();
     player.setTint(0xff0000);
     gameOverImage.visible = true;
     yesImage.visible = true;
     noImage.visible = true;
     // scoreTextOver.visible = true;
+
+    const data = {
+      balance: new BigNumber(balanceOffChain)
+        .minus(new BigNumber(10 * 10 ** 18))
+        .toString(),
+      point: score + point,
+    };
+
+    await fetch(
+      `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    // dispatch(fetchData(blockchain?.account));
   }
 
   function createWater(thus) {
@@ -236,7 +279,7 @@ function Game() {
         createSignIn(this);
 
         // Score text
-        scoreText = this.add.text(850, 20, "SCORE: 0", {
+        scoreText = this.add.text(800, 20, "SCORE: 0", {
           fontSize: "24px",
           fill: "#fff",
         });
@@ -268,46 +311,14 @@ function Game() {
     },
   };
 
-  const destroy = () => {
-    if (gameRef.current) {
-      gameRef.current.destroy();
-    }
-    setInitialize(false);
-  };
-
   useEffect(() => {
-    if (blockchain?.account) setInitialize(true);
+    if (blockchain?.account) {
+      if (gameRef.current) {
+        gameRef.current.destroy();
+      }
+      setInitialize(true);
+    }
   }, [blockchain?.account]);
-
-  const { ethereum } = window;
-  Web3EthContract.setProvider(ethereum);
-  let web3 = new Web3(ethereum);
-
-  const signatureRecover = async (signature, dataThatWasSigned) => {
-    await web3.eth.personal.ecRecover(
-      dataThatWasSigned,
-      signature,
-      (error, address) => {
-        console.log("error: ", error);
-        console.log("address: ", address);
-      }
-    );
-  };
-
-  const handleSignature = async () => {
-    // dispatch(connect());
-    const nonce = Math.floor(Math.random() * 1000000);
-    await web3.eth.personal.sign(
-      web3.utils.fromUtf8(nonce),
-      blockchain?.account,
-      "",
-      (err, signature) => {
-        if (signature) {
-          signatureRecover(signature, web3.utils.fromUtf8(nonce));
-        }
-      }
-    );
-  };
 
   const onConnectWallet = async () => {
     dispatch(connect());
@@ -323,43 +334,21 @@ function Game() {
               alt="sign in"
               className="game-img-bg"
             />
-            {!blockchain?.account ? (
-              <>
-                <img
-                  src="assets/BG/logo-game.png"
-                  alt="logo game"
-                  style={{ position: "relative" }}
-                />
-                <img
-                  src="assets/BG/connect-wallet.png"
-                  alt="sign in"
-                  style={{
-                    position: "relative",
-                    marginTop: 50,
-                    cursor: "pointer",
-                  }}
-                  onClick={onConnectWallet}
-                />
-              </>
-            ) : (
-              <>
-                <img
-                  src="assets/BG/action-required.png"
-                  alt="logo game"
-                  style={{ position: "relative" }}
-                />
-                <img
-                  src="assets/BG/sign-in.png"
-                  alt="sign in"
-                  style={{
-                    position: "relative",
-                    marginTop: 50,
-                    cursor: "pointer",
-                  }}
-                  onClick={handleSignature}
-                />
-              </>
-            )}
+            <img
+              src="assets/BG/logo-game.png"
+              alt="logo game"
+              style={{ position: "relative" }}
+            />
+            <img
+              src="assets/BG/connect-wallet.png"
+              alt="sign in"
+              style={{
+                position: "relative",
+                marginTop: 50,
+                cursor: "pointer",
+              }}
+              onClick={onConnectWallet}
+            />
           </div>
         ) : (
           <IonPhaser ref={gameRef} game={game} initialize={initialize} />
