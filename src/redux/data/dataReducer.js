@@ -18,7 +18,10 @@ const dataReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        name: action.payload.name,
+        AWBCBalance: action.payload.AWBCBalance,
+        totalDeposit: action.payload.totalDeposit,
+        balanceOffChain: action.payload.balanceOffChain,
+        point: action.payload.point,
         error: false,
         errorMsg: "",
       };

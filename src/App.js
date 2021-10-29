@@ -6,6 +6,8 @@ import GamePage from "./pages/game";
 import * as s from "./styles/globalStyles";
 import Header from "./components/header";
 import "./styles/app.css";
+import { SnackbarProvider } from 'notistack';
+import Slide from '@material-ui/core/Slide';
 
 function App() {
   return (
@@ -17,8 +19,17 @@ function App() {
         >
           <Header />
           <Switch>
+          <SnackbarProvider
+              anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+              }}
+              TransitionComponent={Slide}
+              maxSnack={3}
+          >
             <Route exact path="/" component={HomePage} />
             <Route exact path="/game" component={GamePage} />
+          </SnackbarProvider>
           </Switch>
         </s.Screen>
       </BrowserRouter>

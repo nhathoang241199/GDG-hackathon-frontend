@@ -10,7 +10,7 @@ function Header() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const getData = () => {
-    if (blockchain.account !== "" && blockchain.smartContract !== null) {
+    if (blockchain.account !== "") {
       dispatch(fetchData(blockchain.account));
     }
   };
@@ -32,6 +32,7 @@ function Header() {
       </s.TextHref>
       <StyledButton
         style={{ width: 300 }}
+        disabled={blockchain?.account}
         onClick={(e) => {
           e.preventDefault();
           dispatch(connect());

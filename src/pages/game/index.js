@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Phaser from "phaser";
 import { IonPhaser } from "@ion-phaser/react";
 import { useSnackbar } from "notistack";
+import BigNumber from "big-number";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
 
@@ -11,7 +12,7 @@ function Game() {
   const gameRef = useRef(null);
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
-  const { point = 0, balanceOffChain = 0 } = data || {};
+  const { point = 0, balanceOffChain = "0" } = data || {};
   const [initialize, setInitialize] = useState(true);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -42,7 +43,9 @@ function Game() {
     score += 10;
     if (score === 100) {
       const data = {
-        balance: score + balanceOffChain,
+        balance: new BigNumber(score * 10 ** 18)
+          .plus(new BigNumber(balanceOffChain))
+          .toString(),
         point: score + point,
       };
 
@@ -154,21 +157,24 @@ function Game() {
     // scoreTextOver.visible = true;
 
     const data = {
-      balance: Math.abs(balanceOffChain - score),
-      point: Math.abs(point - score),
+      balance: new BigNumber(balanceOffChain)
+        .minus(new BigNumber(10 * 10 ** 18))
+        .toString(),
+      point: score + point,
     };
+    console.log("data: ", data);
 
-    await fetch(
-      `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
-      {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    // await fetch(
+    //   `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+    //   {
+    //     method: "PUT",
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    //   }
+    // );
   }
 
   function createWater(thus) {
