@@ -305,54 +305,54 @@ function Game() {
   return (
     <div className="game-container">
       <div className="ion-phaser">
-        {/* {!blockchain?.account ? ( */}
-        <div className="game-bg">
-          <img
-            src="assets/BG/game-bg.png"
-            alt="sign in"
-            className="game-img-bg"
-          />
-          {!blockchain?.account ? (
-            <>
-              <img
-                src="assets/BG/logo-game.png"
-                alt="logo game"
-                style={{ position: "relative" }}
-              />
-              <img
-                src="assets/BG/connect-wallet.png"
-                alt="sign in"
-                style={{
-                  position: "relative",
-                  marginTop: 50,
-                  cursor: "pointer",
-                }}
-                onClick={onConnectWallet}
-              />
-            </>
-          ) : (
-            <>
-              <img
-                src="assets/BG/action-require.png"
-                alt="logo game"
-                style={{ position: "relative" }}
-              />
-              <img
-                src="assets/BG/sign-in.png"
-                alt="sign in"
-                style={{
-                  position: "relative",
-                  marginTop: 50,
-                  cursor: "pointer",
-                }}
-                onClick={handleSignature}
-              />
-            </>
-          )}
-        </div>
-        {/* ) : (
+        {!blockchain?.account ? (
+          <div className="game-bg">
+            <img
+              src="assets/BG/game-bg.png"
+              alt="sign in"
+              className="game-img-bg"
+            />
+            {!blockchain?.account ? (
+              <>
+                <img
+                  src="assets/BG/logo-game.png"
+                  alt="logo game"
+                  style={{ position: "relative" }}
+                />
+                <img
+                  src="assets/BG/connect-wallet.png"
+                  alt="sign in"
+                  style={{
+                    position: "relative",
+                    marginTop: 50,
+                    cursor: "pointer",
+                  }}
+                  onClick={onConnectWallet}
+                />
+              </>
+            ) : (
+              <>
+                <img
+                  src="assets/BG/action-required.png"
+                  alt="logo game"
+                  style={{ position: "relative" }}
+                />
+                <img
+                  src="assets/BG/sign-in.png"
+                  alt="sign in"
+                  style={{
+                    position: "relative",
+                    marginTop: 50,
+                    cursor: "pointer",
+                  }}
+                  onClick={handleSignature}
+                />
+              </>
+            )}
+          </div>
+        ) : (
           <IonPhaser ref={gameRef} game={game} initialize={initialize} />
-        )} */}
+        )}
       </div>
     </div>
   );
