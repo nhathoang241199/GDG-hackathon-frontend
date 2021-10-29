@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import * as s from "../../styles/globalStyles";
 import i1 from "../../assets/images/Lucas.png";
-import { useSnackbar, withSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
 
 export const StyledButton = styled.button`
   border-radius: 50px;
@@ -100,7 +100,7 @@ function Home() {
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
   const sig = '0xaf8ff3425a9d939fd2fa3b68726f9eabec8dabda7b5643f8db12be92bc6cc2f0719810cb0ca5d85971b1fd6c651647c16dd5d825959bc45fe0ecb860c28781721c';
-
+  
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const handleNotify = (mess, type) => {
@@ -113,6 +113,10 @@ function Home() {
 
   const handleCloseNotify = () => {
     closeSnackbar();
+  }
+
+  if(blockchain.errorMsg){
+    handleNotify(blockchain.errorMsg, 'error');
   }
 
   const deposit = () => {

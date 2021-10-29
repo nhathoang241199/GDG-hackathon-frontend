@@ -72,7 +72,7 @@ export const connect = () => {
           });
           // Add listeners end
         } else {
-          dispatch(connectFailed("Change network to BSC testnet."));
+          dispatch(connectFailed("Please change network to BSC testnet."));
         }
       } catch (err) {
         dispatch(connectFailed("Something went wrong."));

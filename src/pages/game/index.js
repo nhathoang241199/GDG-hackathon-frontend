@@ -4,6 +4,7 @@ import Phaser from "phaser";
 import { IonPhaser } from "@ion-phaser/react";
 import Web3EthContract from "web3-eth-contract";
 import Web3 from "web3";
+import { useSnackbar } from 'notistack';
 
 import { connect } from "../../redux/blockchain/blockchainActions";
 
@@ -12,6 +13,16 @@ function Game() {
   const gameRef = useRef(null);
   const blockchain = useSelector((state) => state.blockchain);
   const [initialize, setInitialize] = useState(true);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleNotify = (mess, type) => {
+    enqueueSnackbar(mess, {variant: type});
+  };
+
+  if(blockchain.errorMsg){
+    handleNotify(blockchain.errorMsg, 'error');
+  }
 
   let platform;
   let player;
