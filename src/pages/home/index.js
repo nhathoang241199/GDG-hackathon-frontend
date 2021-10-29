@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import * as s from "../../styles/globalStyles";
 import i1 from "../../assets/images/Lucas.png";
+import { useSnackbar } from 'notistack';
 
 export const StyledButton = styled.button`
   border-radius: 50px;
@@ -100,26 +101,37 @@ function Home() {
   const data = useSelector((state) => state.data);
   const sig = '0xaf8ff3425a9d939fd2fa3b68726f9eabec8dabda7b5643f8db12be92bc6cc2f0719810cb0ca5d85971b1fd6c651647c16dd5d825959bc45fe0ecb860c28781721c';
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleNotify = (mess, type) => {
+    enqueueSnackbar(mess, {variant: type});
+  };
+
   const deposit = () => {
+    handleNotify('Deposit ...', 'info');
     blockchain.BankSC.methods
     .deposit(blockchain.web3.utils.toWei((1).toString(), "ether"))
     .send({
-      from: blockchain.account
+      from: blockchain.account,
     }).once('error', (err)=>{
+      handleNotify('Deposit fail!', 'error');
       console.log(err);
     }).then(() => {
-      console.log('deposit successful!');
+      handleNotify('Deposit successful!', 'success');
     });
   }
 
   const withdraw = () => {
+    handleNotify('Withdraw ...', 'info');
     blockchain.BankSC.methods
     .withdraw(blockchain.web3.utils.toWei((30).toString(), "ether"), blockchain.nonce, sig)
     .send({
       from: blockchain.account,
     }).once('error', (err)=>{
+      handleNotify('Withdraw fail!', 'error');
       console.log(err);
     }).then(() => {
+      handleNotify('Withdraw successful!', 'success');
       console.log('deposit successful!');
     });
   }
@@ -138,6 +150,8 @@ function Home() {
           ai={"center"}
           style={{ backgroundColor: "#383838", padding: 24 }}
         >
+          {blockchain.account ? (
+          <>
           <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
             Deposit to earn money
           </s.TextTitle>
@@ -145,19 +159,19 @@ function Home() {
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            AWBC Balance: {data.AWBCBalance} ETH
+            AWBC Balance: {data.AWBCBalance ? data.AWBCBalance : 0} ETH
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            Total Deposit: {data.totalDeposit} ETH
+            Total Deposit: {data.totalDeposit ? data.totalDeposit : 0} ETH
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            Total Reward: 9.7 ETH
+            Total Reward: 0 ETH
           </s.TextDescription>
           <s.SpacerMedium />
           <s.Container ai={"center"} jc={"center"} fd={"row"}>
@@ -176,6 +190,16 @@ function Home() {
               Play now!
             </StyledA>
           </s.Container>
+        
+        </>
+          ) : (
+            <>
+            <s.TextTitle style={{ textAlign: "center", marginBottom: 20 }}>
+              Let's connect your wallet
+          </s.TextTitle>
+            </>
+          )
+        }
         </s.Container>
       </ResponsiveWrapper>
       <s.SpacerSmall />
