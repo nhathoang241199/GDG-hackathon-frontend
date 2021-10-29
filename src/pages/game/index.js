@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Phaser from "phaser";
 import { IonPhaser } from "@ion-phaser/react";
-import Web3EthContract from "web3-eth-contract";
-import Web3 from "web3";
+import { useSnackbar } from "notistack";
 
 import { connect } from "../../redux/blockchain/blockchainActions";
 
@@ -11,7 +10,19 @@ function Game() {
   const dispatch = useDispatch();
   const gameRef = useRef(null);
   const blockchain = useSelector((state) => state.blockchain);
+  const data = useSelector((state) => state.data);
+  const { point = 0, balanceOffChain = 0 } = data || {};
   const [initialize, setInitialize] = useState(true);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleNotify = (mess, type) => {
+    enqueueSnackbar(mess, { variant: type });
+  };
+
+  if (blockchain.errorMsg) {
+    handleNotify(blockchain.errorMsg, "error");
+  }
 
   let platform;
   let player;
@@ -26,9 +37,27 @@ function Game() {
   let noImage;
   let clearImage;
 
-  function collectCoin(player, coin) {
+  async function collectCoin(player, coin) {
     coin.disableBody(true, true);
     score += 10;
+    if (score === 100) {
+      const data = {
+        balance: score + balanceOffChain,
+        point: score + point,
+      };
+
+      await fetch(
+        `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+    }
   }
 
   function createCoin(coin) {
@@ -116,13 +145,30 @@ function Game() {
     // scoreTextOver.visible = true;
   }
 
-  function setGameOver(player, water) {
+  async function setGameOver(player, water) {
     this.physics.pause();
     player.setTint(0xff0000);
     gameOverImage.visible = true;
     yesImage.visible = true;
     noImage.visible = true;
     // scoreTextOver.visible = true;
+
+    const data = {
+      balance: Math.abs(balanceOffChain - score),
+      point: Math.abs(point - score),
+    };
+
+    await fetch(
+      `https://learned-vehicle-330115.df.r.appspot.com/user/${blockchain?.account}`,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
   }
 
   function createWater(thus) {
@@ -257,46 +303,14 @@ function Game() {
     },
   };
 
-  const destroy = () => {
-    if (gameRef.current) {
-      gameRef.current.destroy();
-    }
-    setInitialize(false);
-  };
-
   useEffect(() => {
-    if (blockchain?.account) setInitialize(true);
+    if (blockchain?.account) {
+      if (gameRef.current) {
+        gameRef.current.destroy();
+      }
+      setInitialize(true);
+    }
   }, [blockchain?.account]);
-
-  const { ethereum } = window;
-  Web3EthContract.setProvider(ethereum);
-  let web3 = new Web3(ethereum);
-
-  const signatureRecover = async (signature, dataThatWasSigned) => {
-    await web3.eth.personal.ecRecover(
-      dataThatWasSigned,
-      signature,
-      (error, address) => {
-        console.log("error: ", error);
-        console.log("address: ", address);
-      }
-    );
-  };
-
-  const handleSignature = async () => {
-    // dispatch(connect());
-    const nonce = Math.floor(Math.random() * 1000000);
-    await web3.eth.personal.sign(
-      web3.utils.fromUtf8(nonce),
-      blockchain?.account,
-      "",
-      (err, signature) => {
-        if (signature) {
-          signatureRecover(signature, web3.utils.fromUtf8(nonce));
-        }
-      }
-    );
-  };
 
   const onConnectWallet = async () => {
     dispatch(connect());
@@ -312,43 +326,21 @@ function Game() {
               alt="sign in"
               className="game-img-bg"
             />
-            {!blockchain?.account ? (
-              <>
-                <img
-                  src="assets/BG/logo-game.png"
-                  alt="logo game"
-                  style={{ position: "relative" }}
-                />
-                <img
-                  src="assets/BG/connect-wallet.png"
-                  alt="sign in"
-                  style={{
-                    position: "relative",
-                    marginTop: 50,
-                    cursor: "pointer",
-                  }}
-                  onClick={onConnectWallet}
-                />
-              </>
-            ) : (
-              <>
-                <img
-                  src="assets/BG/action-required.png"
-                  alt="logo game"
-                  style={{ position: "relative" }}
-                />
-                <img
-                  src="assets/BG/sign-in.png"
-                  alt="sign in"
-                  style={{
-                    position: "relative",
-                    marginTop: 50,
-                    cursor: "pointer",
-                  }}
-                  onClick={handleSignature}
-                />
-              </>
-            )}
+            <img
+              src="assets/BG/logo-game.png"
+              alt="logo game"
+              style={{ position: "relative" }}
+            />
+            <img
+              src="assets/BG/connect-wallet.png"
+              alt="sign in"
+              style={{
+                position: "relative",
+                marginTop: 50,
+                cursor: "pointer",
+              }}
+              onClick={onConnectWallet}
+            />
           </div>
         ) : (
           <IonPhaser ref={gameRef} game={game} initialize={initialize} />
