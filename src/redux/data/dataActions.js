@@ -25,14 +25,18 @@ export const fetchData = (account) => {
   return async (dispatch) => {
     dispatch(fetchDataRequest());
     try {
-      let name = await store
+      let AWBCBalance = await store
         .getState()
-        .blockchain.smartContract.methods.name()
+        .blockchain.AWBCTokenSC.methods.balanceOf(store.getState().blockchain.account)
         .call();
-
+      let totalDeposit = await store
+        .getState()
+        .blockchain.BankSC.methods.balanceOf(store.getState().blockchain.account)
+        .call();
       dispatch(
         fetchDataSuccess({
-          name,
+          AWBCBalance,
+          totalDeposit
         })
       );
     } catch (err) {

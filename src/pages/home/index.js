@@ -97,6 +97,32 @@ export const StyledImg = styled.img`
 function Home() {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
+  const data = useSelector((state) => state.data);
+  const sig = '0xaf8ff3425a9d939fd2fa3b68726f9eabec8dabda7b5643f8db12be92bc6cc2f0719810cb0ca5d85971b1fd6c651647c16dd5d825959bc45fe0ecb860c28781721c';
+
+  const deposit = () => {
+    blockchain.BankSC.methods
+    .deposit(blockchain.web3.utils.toWei((1).toString(), "ether"))
+    .send({
+      from: blockchain.account
+    }).once('error', (err)=>{
+      console.log(err);
+    }).then(() => {
+      console.log('deposit successful!');
+    });
+  }
+
+  const withdraw = () => {
+    blockchain.BankSC.methods
+    .withdraw(blockchain.web3.utils.toWei((30).toString(), "ether"), blockchain.nonce, sig)
+    .send({
+      from: blockchain.account,
+    }).once('error', (err)=>{
+      console.log(err);
+    }).then(() => {
+      console.log('deposit successful!');
+    });
+  }
 
   return (
     <s.Container flex={1} ai={"center"} style={{ padding: 24 }}>
@@ -119,7 +145,13 @@ function Home() {
           <s.TextDescription
             style={{ textAlign: "center", alignSelf: "start" }}
           >
-            Total Deposit: 200.5 ETH
+            AWBC Balance: {data.AWBCBalance} ETH
+          </s.TextDescription>
+          <s.SpacerSmall />
+          <s.TextDescription
+            style={{ textAlign: "center", alignSelf: "start" }}
+          >
+            Total Deposit: {data.totalDeposit} ETH
           </s.TextDescription>
           <s.SpacerSmall />
           <s.TextDescription
@@ -129,8 +161,8 @@ function Home() {
           </s.TextDescription>
           <s.SpacerMedium />
           <s.Container ai={"center"} jc={"center"} fd={"row"}>
-            <StyledButton onClick={(e) => {}}>Deposit</StyledButton>
-            <StyledButton style={{ marginLeft: 10 }} onClick={(e) => {}}>
+            <StyledButton onClick={deposit}>Deposit</StyledButton>
+            <StyledButton style={{ marginLeft: 10 }} onClick={withdraw}>
               Withdraw
             </StyledButton>
           </s.Container>

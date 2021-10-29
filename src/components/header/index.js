@@ -32,6 +32,7 @@ function Header() {
       </s.TextHref>
       <StyledButton
         style={{ width: 300 }}
+        disabled={blockchain?.account}
         onClick={(e) => {
           e.preventDefault();
           dispatch(connect());

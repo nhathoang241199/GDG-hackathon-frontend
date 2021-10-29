@@ -1,7 +1,9 @@
 // constants
 import Web3EthContract from "web3-eth-contract";
 import Web3 from "web3";
-import SmartContract from "../../contracts/NCC.json";
+import AWBCToken from "../../contracts/AWBCToken.json";
+import Bank from "../../contracts/Bank.json";
+
 // log
 import { fetchData } from "../data/dataActions";
 
@@ -48,12 +50,16 @@ export const connect = () => {
           method: "net_version",
         });
         // const NetworkData = await SmartContract.networks[networkId];
-        if (networkId === '4') {
-          const SmartContractObj = new Web3EthContract(SmartContract, "");
+        if (networkId === '97') {
+          const AWBCTokenSC = new Web3EthContract(AWBCToken.abi, AWBCToken.address);
+          const BankSC = new Web3EthContract(Bank.abi, Bank.address);
+          const nonce = await web3.eth.getTransactionCount(accounts[0]);
           dispatch(
             connectSuccess({
               account: accounts[0],
-              smartContract: SmartContractObj,
+              AWBCTokenSC: AWBCTokenSC,
+              BankSC: BankSC,
+              nonce: nonce,
               web3: web3,
             })
           );
@@ -66,7 +72,7 @@ export const connect = () => {
           });
           // Add listeners end
         } else {
-          dispatch(connectFailed("Change network to Rinkeby."));
+          dispatch(connectFailed("Change network to BSC testnet."));
         }
       } catch (err) {
         dispatch(connectFailed("Something went wrong."));
