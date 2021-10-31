@@ -46,7 +46,7 @@ function Game() {
   let noImage;
   let clearImage;
   let originScore = score;
-  let balanceChain = "0";
+  let balanceChain = balanceOffChain;
 
   async function updateDataUser(body) {
     try {
